@@ -53,6 +53,10 @@ int main(int argc, char const *argv[])
 	{
 		cout << "-x is true\n" << "extract number " << x_i << endl;
 		cout << "Output to " << output_name_x << endl;
-	}
+	}//edn if
+
+
+	AMDMIK002::VolImage VI;
+	bool good = VI.readImages(imageBaseName);
 	return 0;
 }

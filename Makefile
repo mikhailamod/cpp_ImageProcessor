@@ -13,7 +13,7 @@ TARGET=driver
 
 default: driver
 
-driver: driver.o VolImage.o
+driver: VolImage.o driver.o
 	g++ driver.o VolImage.o $(CCFLAGS) -o volimage
 	mv *.o ./build
 	mv volimage ./bin
