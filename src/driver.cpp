@@ -49,7 +49,7 @@ int main(int argc, char const *argv[])
 		cout << "-d is true\n" << "map between " << d_i << " and " << d_j << endl;
 		cout << "Output to " << output_name_d << endl;
 	}
-	if(option_x)
+	else if(option_x)
 	{
 		cout << "-x is true\n" << "extract number " << x_i << endl;
 		cout << "Output to " << output_name_x << endl;
@@ -58,5 +58,10 @@ int main(int argc, char const *argv[])
 
 	AMDMIK002::VolImage VI;
 	bool good = VI.readImages(imageBaseName);
+	if(option_d)
+	{
+		VI.diffmap(d_i, d_j, output_name_d);
+	}
+	//VI.print(1);
 	return 0;
 }
