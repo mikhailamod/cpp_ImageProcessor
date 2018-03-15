@@ -62,6 +62,10 @@ int main(int argc, char const *argv[])
 	{
 		VI.diffmap(d_i, d_j, output_name_d);
 	}
+	if(option_x)
+	{
+		VI.extract(x_i, output_name_x);
+	}
 	//VI.print(1);
 	return 0;
 }

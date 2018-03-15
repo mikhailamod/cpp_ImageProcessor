@@ -82,7 +82,10 @@ namespace AMDMIK002
 				for (int i = 0; i < VolImage::height; ++i)
 				{
 					cols = new unsigned char[VolImage::width];//a new array for columns
-					raw_file.read((char *)cols, VolImage::width);//read from raw file and store WIDTH items in cols Array
+					for(int j=0; j < VolImage::width; ++j)
+					{
+						raw_file.read((char *)cols, 1);//read from raw file and store WIDTH items in cols Array
+					}
 					rows[i] = cols;
 					delete cols;
 				}//end for
@@ -143,7 +146,15 @@ namespace AMDMIK002
 	//extract slice 'sliceId' and write out
 	void VolImage::extract(int sliceId, std::string output_prefix)
 	{
-		std::cout << "this function has not been coded bc im lazy" << std::endl;
+		std::ofstream outfile(output_prefix, std::ios::out | std::ios::app  | std::ios::binary);
+		unsigned char ** array2d = slices[sliceId];
+		for (int i = 0; i < VolImage::height; ++i)
+		{
+			unsigned char * row = array2d[i];
+			outfile.write((char*)row, VolImage::width);
+			delete row;
+		}
+
 	}
 
 	//num of bytes used to store image data bytes
