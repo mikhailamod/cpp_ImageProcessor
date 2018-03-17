@@ -41,31 +41,41 @@ int main(int argc, char const *argv[])
 			x_i = stoi(string(argv[i+1]));
 			output_name_x = string(argv[i+2]);
 		}
+	}//end for
+
+	if(option_d && option_x)
+	{
+		cout << "Both operations cannot be invoked at the same time.\nProgram exiting..." << endl;
+		return 0;
+	}
+	else
+	{
+		cout << "imageBase = " << imageBaseName << endl;
+		if(option_d)
+		{
+			cout << "-d is true\n" << "map between " << d_i << " and " << d_j << endl;
+			cout << "Output to " << output_name_d << endl;
+		}
+		else if(option_x)
+		{
+			cout << "-x is true\n" << "extract number " << x_i << endl;
+			cout << "Output to " << output_name_x << endl;
+		}//edn if
+		AMDMIK002::VolImage VI;
+		bool good = VI.readImages(imageBaseName);
+		if(option_d)
+		{
+			VI.diffmap(d_i, d_j, output_name_d);
+			cout << "Difference map bewteen images " << d_i << " and " << d_j << " has been completed" << endl;
+		}
+		else if(option_x)
+		{
+			VI.extract(x_i, output_name_x);
+			cout << "Extraction of image " << d_i << " has been completed" << endl;
+		}
+		//VI.print(1);
+		return 0;
 	}
 
-	cout << "imageBase = " << imageBaseName << endl;
-	if(option_d)
-	{
-		cout << "-d is true\n" << "map between " << d_i << " and " << d_j << endl;
-		cout << "Output to " << output_name_d << endl;
-	}
-	else if(option_x)
-	{
-		cout << "-x is true\n" << "extract number " << x_i << endl;
-		cout << "Output to " << output_name_x << endl;
-	}//edn if
-
-
-	AMDMIK002::VolImage VI;
-	bool good = VI.readImages(imageBaseName);
-	if(option_d)
-	{
-		VI.diffmap(d_i, d_j, output_name_d);
-	}
-	if(option_x)
-	{
-		VI.extract(x_i, output_name_x);
-	}
-	//VI.print(1);
-	return 0;
+	
 }

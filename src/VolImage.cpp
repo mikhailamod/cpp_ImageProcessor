@@ -61,7 +61,8 @@ namespace AMDMIK002
 		VolImage::width = header_data[0];
 		VolImage::height = header_data[1];
 		num_files = header_data[2];
-		unsigned char * cols;
+		unsigned char ** rows;
+		
 
 		//loop through each file
 		for (int file_num = 0; file_num < num_files; ++file_num)
@@ -74,45 +75,28 @@ namespace AMDMIK002
 				std::cout << "Error: Could not open " + file << std::endl;
 				return false;
 			}
-			unsigned char ** rows = new unsigned char*[VolImage::height];
-
 			//read through each line
-			while(!raw_file.eof())
+			if(raw_file.is_open())
 			{
+				rows = new unsigned char*[VolImage::height];
+				unsigned char * cols;
+				int pos = 0;
 				for (int i = 0; i < VolImage::height; ++i)
 				{
 					cols = new unsigned char[VolImage::width];//a new array for columns
-					for(int j=0; j < VolImage::width; ++j)
-					{
-						raw_file.read((char *)cols, 1);//read from raw file and store WIDTH items in cols Array
-					}
+					raw_file.read((char *)cols, VolImage::width);//read from raw file and store WIDTH items in cols Array
 					rows[i] = cols;
-					delete cols;
+					//delete cols;
 				}//end for
 			}//end while
 			slices.push_back(rows);
+			raw_file.close();
 		}//end for
-
+		std::cout << "Number of images: " << slices.size() << std::endl;
+		std::cout << "Nuber of bytes required: " << volImageSize() << std::endl;
 		return true;
 		
 	}//end
-
-	//DEBUG
-	void VolImage::print(int num)
-	{
-		for (int i = 0; i < num; ++i)
-		{
-			for (int j = 0; j < VolImage::height; ++j)
-			{
-				for (int k = 0; k < VolImage::width; ++k)
-				{
-					std::cout << (int)slices[i][j][k];
-				}
-				std::cout << std::endl;
-			}
-			std::cout << "----NEW SLICE----" << std::endl;
-		}
-	}
 
 	//compute difference map and write out
 	//(unsigned char)(abs((float)volume[i][r][c] - (float)volume[j][r][c])/2)
@@ -123,23 +107,21 @@ namespace AMDMIK002
 		std::ofstream outfile(output_prefix, std::ios::out | std::ios::app  | std::ios::binary);
 		for (int i = 0; i < VolImage::height; ++i)
 		{
-			unsigned char * row = new unsigned char[VolImage::width];
+			//unsigned char * row = new unsigned char[VolImage::width];
 			for (int j = 0; j < VolImage::width; ++j)
 			{
 				unsigned char c_i = array_i[i][j];
 				unsigned char c_j = array_j[i][j];
 				float pixel_i = (float)(c_i);
-				//std::cout << "DEBUG: " << pixel_i << std::endl;
 				float pixel_j = (float)(c_j);
 				float diff = pixel_i - pixel_j;
 				float abs = std::abs(diff);
 				float output_num = abs/2;
-				//output_num = output_num*255;
-				unsigned char temp = output_num;
-				row[VolImage::width] = temp;
+				char temp = output_num;
+				outfile.write(&temp, 1);
 			}
-			outfile.write((char*)(row), VolImage::width);
-			delete row;
+			
+			//delete row;
 		}
 	}
 
@@ -147,13 +129,15 @@ namespace AMDMIK002
 	void VolImage::extract(int sliceId, std::string output_prefix)
 	{
 		std::ofstream outfile(output_prefix, std::ios::out | std::ios::app  | std::ios::binary);
-		unsigned char ** array2d = slices[sliceId];
 		for (int i = 0; i < VolImage::height; ++i)
 		{
-			unsigned char * row = array2d[i];
-			outfile.write((char*)row, VolImage::width);
-			delete row;
+			for (int j = 0; j < VolImage::width; ++j)
+			{
+				char pixel = slices[sliceId][i][j];
+				outfile.write(&pixel, 1);
+			}
 		}
+		outfile.close();
 
 	}
 
@@ -161,7 +145,7 @@ namespace AMDMIK002
 	//and pointers (ignore vector<> container, dims etc)
 	int VolImage::volImageSize(void)
 	{
-		return 1;
+		return VolImage::height*VolImage::width*slices.size();//1 byte per pixel. Therefore width*height*number of images
 	}
 }
 
