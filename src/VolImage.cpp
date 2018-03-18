@@ -138,7 +138,20 @@ namespace AMDMIK002
 			}
 		}
 		outfile.close();
+	}//end
 
+	void VolImage::row_extract(int row_num, std::string output_prefix)
+	{
+		std::ofstream outfile(output_prefix, std::ios::out | std::ios::app  | std::ios::binary);
+		for (int file = 0; file < slices.size(); ++file)//for each slice
+		{
+			for (int col = 0; col < VolImage::width; ++col)//we will access each column in the row_num
+			{
+				char pixel = slices[file][row_num][col];
+				outfile.write(&pixel, 1);
+			}//end inner for
+		}//end outer for
+		outfile.close();
 	}
 
 	//num of bytes used to store image data bytes

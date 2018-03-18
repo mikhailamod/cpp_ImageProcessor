@@ -20,6 +20,7 @@ namespace AMDMIK002
 		bool readImages(std::string baseName);
 		void diffmap(int sliceI, int sliceJ, std::string output_prefix);
 		void extract(int sliceId, std::string output_prefix);
+		void row_extract(int row_num, std::string output_prefix);
 		int volImageSize(void);
 		void print(int num);
 	};
