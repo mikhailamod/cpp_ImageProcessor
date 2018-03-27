@@ -17,9 +17,10 @@ namespace AMDMIK002
 		slices.resize(0);	
 	}
 
-	VolImage::~VolImage()
+	VolImage::~VolImage()//deconstructor
 	{
-		
+		delete rows;
+		delete cols;
 	}
 
 	//get information from header file
@@ -27,7 +28,9 @@ namespace AMDMIK002
 	{
 		std::vector<int> line_vector;//for split words
 
-		std::string header_file = "../lib/brain_mri_raws/" + baseName + ".data";
+		std::string header_file = "../lib/" + baseName + "/" + baseName + ".data";
+		std::cout << "Reader header file from " << header_file << std::endl;
+
 		std::ifstream header(header_file);
 		if(!header)
 		{
@@ -61,13 +64,11 @@ namespace AMDMIK002
 		VolImage::width = header_data[0];
 		VolImage::height = header_data[1];
 		num_files = header_data[2];
-		unsigned char ** rows;
-		
 
 		//loop through each file
 		for (int file_num = 0; file_num < num_files; ++file_num)
 		{
-			std::string file = "../lib/brain_mri_raws/" + baseName + std::to_string(file_num) + ".raw";
+			std::string file = "../lib/" + baseName + "/" + baseName  + std::to_string(file_num) + ".raw";
 			std::ifstream raw_file(file, std::ios::binary);
 
 			if(!raw_file)
@@ -79,27 +80,32 @@ namespace AMDMIK002
 			if(raw_file.is_open())
 			{
 				rows = new unsigned char*[VolImage::height];
-				unsigned char * cols;
 				int pos = 0;
 				for (int i = 0; i < VolImage::height; ++i)
 				{
 					cols = new unsigned char[VolImage::width];//a new array for columns
 					raw_file.read((char *)cols, VolImage::width);//read from raw file and store WIDTH items in cols Array
 					rows[i] = cols;
-					//delete cols;
 				}//end for
-			}//end while
+
+				//delete cols;//prevent memory leak
+
+			}//end if
 			slices.push_back(rows);
-			raw_file.close();
+			raw_file.close();//close the file it's writing to
 		}//end for
 		std::cout << "Number of images: " << slices.size() << std::endl;
-		std::cout << "Nuber of bytes required: " << volImageSize() << std::endl;
+		int bytes = volImageSize();
+		float mBytes = bytes/1000000;
+		std::cout << "Nuber of bytes required: " << bytes << " (" << mBytes << "MB)" << std::endl;
+		//delete rows;//prevent memory leak
+
 		return true;
 		
 	}//end
 
 	//compute difference map and write out
-	//(unsigned char)(abs((float)volume[i][r][c] - (float)volume[j][r][c])/2)
+	//formula = (unsigned char)(abs((float)volume[i][r][c] - (float)volume[j][r][c])/2)
 	void VolImage::diffmap(int sliceI, int sliceJ, std::string output_prefix)
 	{
 		unsigned char ** array_i = slices[sliceI];
@@ -107,17 +113,19 @@ namespace AMDMIK002
 		std::ofstream outfile(output_prefix, std::ios::out | std::ios::app  | std::ios::binary);
 		for (int i = 0; i < VolImage::height; ++i)
 		{
-			//unsigned char * row = new unsigned char[VolImage::width];
 			for (int j = 0; j < VolImage::width; ++j)
 			{
+				//below is the diff map calculation
 				unsigned char c_i = array_i[i][j];
 				unsigned char c_j = array_j[i][j];
 				float pixel_i = (float)(c_i);
 				float pixel_j = (float)(c_j);
 				float diff = pixel_i - pixel_j;
-				float abs = std::abs(diff);
+				float abs = std::abs(diff);//absolute value
 				float output_num = abs/2;
-				char temp = output_num;
+				char temp = output_num;//convert to char before writing
+
+				//write the byte to the file
 				outfile.write(&temp, 1);
 			}
 			
@@ -158,7 +166,17 @@ namespace AMDMIK002
 	//and pointers (ignore vector<> container, dims etc)
 	int VolImage::volImageSize(void)
 	{
-		return VolImage::height*VolImage::width*slices.size();//1 byte per pixel. Therefore width*height*number of images
-	}
+		int total_size = slices.size()*width*height;//the total number of pixels, each 1 byte
+		for (int i = 0; i < slices.size(); ++i)
+		{
+			total_size = total_size + sizeof(slices[i]);//size of row pointer
+			for (int j = 0; j < height; ++j)
+			{
+				total_size += sizeof(slices[i][j]);//size of col pointer
+			}//end j loop
+		}//end i loop
+
+		return total_size;
+	}//end imageSize
 }
 

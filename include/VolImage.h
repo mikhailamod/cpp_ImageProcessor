@@ -13,6 +13,8 @@ namespace AMDMIK002
 		int width, height;
 		std::vector<unsigned char**> slices;
 		std::vector<int> getHeader(std::string baseName);
+		unsigned char ** rows;
+		unsigned char * cols;
 	public:
 		VolImage();
 		~VolImage();

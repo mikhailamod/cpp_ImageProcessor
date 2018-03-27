@@ -23,23 +23,25 @@ int main(int argc, char const *argv[])
 	bool option_g = false;
 	int g_i;
 
-	if (argc == 1)
+	if (argc == 1)//if no imageName is given
 	{
 		cout << "Usage: volimage <imageBase> [-d i j output_name] [-x i output_name] [-g i output_name]" << endl;
 		return 0;
 	}
+
 	imageBaseName = string(argv[1]);
+
 	for (int i = 2; i < argc; ++i)
 	{
-		if(string(argv[i]) == "-d")
+		if(string(argv[i]) == "-d")//if -d command detected
 		{
-			parameters++;
+			parameters++;//increase the number of commands used
 			option_d = true;
-			d_i = stoi(string(argv[i+1]));
-			d_j = stoi(string(argv[i+2]));
-			output_name = string(argv[i+3]);
+			d_i = stoi(string(argv[i+1]));//the i parameter converted to int
+			d_j = stoi(string(argv[i+2]));//the j parameter converted to int
+			output_name = string(argv[i+3]);//the output name
 		}
-		if(string(argv[i]) == "-x")
+		if(string(argv[i]) == "-x")//if -x detected
 		{
 			parameters++;
 			option_x = true;
@@ -56,24 +58,16 @@ int main(int argc, char const *argv[])
 		}
 	}//end for
 
-	if(parameters > 1)
+	if(parameters > 1)//if for than one of the commands are called
 	{
-		cout << "Both operations cannot be invoked at the same time.\nProgram exiting..." << endl;
+		cout << "More than 1 operations cannot be invoked at the same time.\nProgram exiting..." << endl;
 		return 0;
 	}
+
 	else
 	{
 		cout << "imageBase = " << imageBaseName << endl;
-		if(option_d)
-		{
-			cout << "-d is true\n" << "map between " << d_i << " and " << d_j << endl;
-			cout << "Output to " << output_name << endl;
-		}
-		else if(option_x)
-		{
-			cout << "-x is true\n" << "extract number " << x_i << endl;
-			cout << "Output to " << output_name << endl;
-		}//edn if
+		cout << "Program will search in ../lib/" << imageBaseName << "/ for data and raw files" << endl;
 		AMDMIK002::VolImage VI;
 		bool good = VI.readImages(imageBaseName);
 		if(option_d)
@@ -91,7 +85,6 @@ int main(int argc, char const *argv[])
 			VI.row_extract(g_i, output_name);
 			cout << "Row Extraction for row " << g_i << " has finished" << endl;
 		}
-		//VI.print(1);
 		return 0;
 	}
 
