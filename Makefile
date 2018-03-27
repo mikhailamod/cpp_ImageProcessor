@@ -27,9 +27,3 @@ driver.o: ./src/driver.cpp
 clean:
 	rm build/*.o
 	rm bin/volimage
-
-run:
-	./bin/volimage
-
-
-#DO NOT DELETE

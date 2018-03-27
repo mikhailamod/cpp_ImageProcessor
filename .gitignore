@@ -1,5 +1,5 @@
 *.o
-lib/brain_mri_raws/
+lib/MRI/
 volimage.sublime-project
 volimage.sublime-workspace
 nbproject/
